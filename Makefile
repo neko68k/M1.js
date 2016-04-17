@@ -132,13 +132,14 @@ $(EXE): $(CUIOBJS) $(OBJS)
 	@echo Linking $(EXE)
 	@$(CPP) -g -o $(EXE).bc $(CUIOBJS) $(OBJS) -L. $(LIBS)
 	@echo Converting to HTML/JS
-	@$(CPP) -g -O3 --embed-file m1.xml -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
+	#@$(CPP) -g -O3 --embed-file m1.xml -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
+	@$(CPP) -g -O3 -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
 
 depend:
 	makedepend -- $(CFLAGS) -- $(SRCS)
 
 clean:
-	rm -f lib$(EXE).a $(OBJS) $(CUIOBJS) $(EXE) *.bak cpu/*.bak boards/*.bak sound/*.bak $(EXE).html $(EXE).js $(EXE).js.mem $(EXE).html.mem
+	rm -f lib$(EXE).a $(OBJS) $(CUIOBJS) $(EXE) *.bak cpu/*.bak boards/*.bak sound/*.bak $(EXE).html $(EXE).js $(EXE).js.mem $(EXE).html.mem $(EXE).bc
 
 
 install: 
