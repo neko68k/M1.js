@@ -45,7 +45,8 @@ OBJS += zlib/zutil.o zlib/inflate.o zlib/infback.o zlib/inftrees.o zlib/inffast.
 
 OBJS += expat/xmlparse.o expat/xmlrole.o expat/xmltok.o
 
-CUIOBJS = m1cui.o
+#CUIOBJS = m1cui.o
+CUIOBJS = m1emsui.o
 
 # Boards (drivers)
 OBJS += boards/brd_raiden2.o boards/brd_segapcm.o boards/brd_taifx1.o boards/brd_multi32.o 
@@ -109,6 +110,10 @@ OBJS += cpu/i8085.o
 
 SRCS=$(OBJS:.o=.c)
 
+# shouldn't have to export _main but for some reason you do
+# seems to be a known issue ~shrug~
+CWRAP = -s EXPORTED_FUNCTIONS='["_main", "_nextTrack","_prevTrack"]'
+
 %.o: %.c
 	@echo Compiling $<
 	@$(CC) $(CFLAGS) $< -o $@
@@ -132,8 +137,7 @@ $(EXE): $(CUIOBJS) $(OBJS)
 	@echo Linking $(EXE)
 	@$(CPP) -g -o $(EXE).bc $(CUIOBJS) $(OBJS) -L. $(LIBS)
 	@echo Converting to HTML/JS
-	#@$(CPP) -g -O3 --embed-file m1.xml -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
-	@$(CPP) -g -O3 -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
+	@$(CPP) -g -O3 $(CWRAP) -s ALLOW_MEMORY_GROWTH=1 --use-preload-plugins $(EXE).bc -o $(EXE).html
 
 depend:
 	makedepend -- $(CFLAGS) -- $(SRCS)
@@ -143,6 +147,6 @@ clean:
 
 
 install: 
-	cp $(EXE).html $(EXE).js $(EXE).html.mem /var/www
+	cp m1player.html $(EXE).js $(EXE).html.mem /var/www
 # DO NOT DELETE
 

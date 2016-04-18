@@ -70,7 +70,7 @@ static int oss_nw = 0, oss_playing = 0;
 
 int audiofd;
 //static snd_pcm_t *pHandle = NULL;
-int lnxdrv_apimode = 3;		// 0 = SDL, 1 = ALSA, 2 = OSS, 3 = PulseAudio
+int lnxdrv_apimode = 0;		// 0 = SDL, 1 = ALSA, 2 = OSS, 3 = PulseAudio
 
 static int playtime = 0;
 

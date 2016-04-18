@@ -1,6 +1,14 @@
 Module['preRun'] = function() {
+	FS.createFolder('/', 'roms', true, true)
 	FS.createPreloadedFile('/', 'm1.xml', 'http://localhost/m1.xml', true, false);
+	FS.createPreloadedFile('/roms', '1941.zip', 'http://localhost/roms/1941.zip', true, false);
+	Module['arguements']=['1941'];
 };
+
+var gamejmp = Module.cwrap('gamejmp', null, ['number']);
+var findgame = Module.cwrap('findgame', 'string', ['number']);
+var gamenum = findgame('mslug');
+gamejmp(gamenum);
 
 function getParameterByName(name, url) {
 	if (!url) url = window.location.href;
@@ -13,3 +21,12 @@ function getParameterByName(name, url) {
 }
 
 var romname = getParameterByName('rom')
+
+
+
+
+
+
+
+
+
