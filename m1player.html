@@ -1204,6 +1204,12 @@
   </span>
 </span>
 
+<p id="romtitle"></p>
+<p id="romdriver"></p>
+<p id="romhardware"></p>
+<p id="time"></p>
+
+
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
@@ -1325,10 +1331,14 @@
 		FS.createFolder('/', 'roms', true, true)
 		FS.createFolder('/', 'lists', true, true)
 		FS.createFolder('/lists', 'en', true, true)
-
+		try{
 		FS.createPreloadedFile('/lists/en', romname+'.lst', '/lists/en/'+romname+'.lst', true, false);
 		FS.createPreloadedFile('/', 'm1.xml', '/m1.xml', true, false);
 		FS.createPreloadedFile('/roms', romname+'.zip', '/roms/'+romname+'.zip', true, false);
+		}
+		catch(err){
+		
+		}
 		Module.arguments = [romname];
 	};
 

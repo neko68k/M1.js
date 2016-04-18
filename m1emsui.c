@@ -40,6 +40,7 @@ extern int lnxdrv_apimode;
 
 static int max_games;
 char *rompath;
+int curgame;
 
 // find_rompath: returns if the file can be found in the ROM search path
 // alters "fn" to be the full path if found so make sure it's big
@@ -135,21 +136,25 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 		// called to show the current game's name
 		case M1_MSG_GAMENAME:
 			curgame = m1snd_get_info_int(M1_IINF_CURGAME, 0);
+			EM_ASM_({document.getElementById("romtitle").innerHTML = 'Game: '+Pointer_stringify($0);}, txt);
 			printf("Game selected: %s (%s, %s)\n", txt, m1snd_get_info_str(M1_SINF_MAKER, curgame), m1snd_get_info_str(M1_SINF_YEAR, curgame));
 			break;
 
 		// called to show the driver's name
 		case M1_MSG_DRIVERNAME:
+			EM_ASM_({document.getElementById("romdriver").innerHTML = 'Driver: '+Pointer_stringify($0);}, txt);				
 			printf("Driver: %s\n", txt);
 			break;
 
 		// called to show the hardware description
 		case M1_MSG_HARDWAREDESC:
+			EM_ASM_({document.getElementById("romhardware").innerHTML = 'Hardware: '+Pointer_stringify($0);}, txt);
 			printf("Hardware: %s\n", txt);
 			break;
 
 		// called when ROM loading fails for a game
 		case M1_MSG_ROMLOADERR:
+			EM_ASM_({document.getElementById("romtitle").innerHTML = 'Game: '+Pointer_stringify($0);}, txt);
 			printf("ROM load error, bailing\n");
 			exit(-1);
 			break;
@@ -271,9 +276,62 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 }
 
 void mainLoop(){
+	int current = m1snd_get_info_int(M1_IINF_CURCMD, 0);
+	int trklen = m1snd_get_info_int(M1_IINF_TRKLENGTH, (current<<16) | curgame);
+	int curtime = m1snd_get_info_int(M1_IINF_CURTIME, 0);
+
+	if(trklen == -1)
+		trklen = 18000;	// five minutes
+	
+	if (curtime >= trklen){
+		EM_ASM(_nextTrack());
+	}
+	EM_ASM_({
+			var tmp;
+			var seconds = $0/60;
+			var minutes = seconds / 60;
+			var trkmins = parseInt($1/60/60, 10);
+			var trksecs = parseInt($1%60,10);
+
+			minutes = parseInt(minutes, 10);
+			seconds = parseInt(seconds - (minutes*60),10);
+
+			if($1 % 60 < 10){
+				tmp = ':0';
+			} else {
+				tmp = ':';
+			}
+
+			if(seconds < 10)
+			{
+				document.getElementById('time').innerHTML = 'Time: ' + minutes + ':0' + seconds + '/' + trkmins+tmp+trksecs;
+			} else {
+				document.getElementById('time').innerHTML = 'Time: ' + minutes + ':' + seconds + '/' + trkmins+tmp+trksecs;
+			}
+		}, curtime, trklen);
 	m1snd_run(M1_CMD_IDLE, 0);
 //	printf("Hit main loop.\n");
 }
+
+/*{
+int seconds = curtime / 60;
+int minutes = seconds / 60;
+seconds -= minutes * 60;
+
+if (trklen % 60 < 10)
+	tmp = ":0";
+else
+	tmp = ":";
+if (seconds < 10) {
+
+	playTime.setText("Time: " + minutes + ":0"
+			+ seconds + "/" + NDKBridge.songLen
+			/ 60 + tmp + NDKBridge.songLen % 60);
+} else
+	playTime.setText("Time: " + minutes + ":"
+			+ seconds + "/" + NDKBridge.songLen
+			/ 60 + tmp + NDKBridge.songLen % 60);
+}*/
 
 int main(int argc, char *argv[])
 {
@@ -299,7 +357,8 @@ int main(int argc, char *argv[])
 
 	m1snd_set_info_str(M1_SINF_SET_ROMPATH, rompath, 0, 0, 0);
 
-	gamejmp(findgame(argv[1]));
+	curgame = findgame(argv[1]);
+	gamejmp(curgame);
 
 	emscripten_set_main_loop(mainLoop, 0, true);
 
