@@ -1323,6 +1323,10 @@
 
 	Module['preRun'] = function() {
 		FS.createFolder('/', 'roms', true, true)
+		FS.createFolder('/', 'lists', true, true)
+		FS.createFolder('/lists', 'en', true, true)
+
+		FS.createPreloadedFile('/lists/en', romname+'.lst', '/lists/en/'+romname+'.lst', true, false);
 		FS.createPreloadedFile('/', 'm1.xml', '/m1.xml', true, false);
 		FS.createPreloadedFile('/roms', romname+'.zip', '/roms/'+romname+'.zip', true, false);
 		Module.arguments = [romname];
