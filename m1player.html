@@ -1220,7 +1220,7 @@
       var spinnerElement = document.getElementById('spinner');
 
       var Module = {
-	arguments: ['tekken3'],
+	arguments: [],
         preRun: [],
         postRun: [],
         print: (function() {
@@ -1309,12 +1309,24 @@
             xhr.send(null);
           })();
 
-Module['preRun'] = function() {
-	FS.createFolder('/', 'roms', true, true)
-	FS.createPreloadedFile('/', 'm1.xml', 'http://localhost/m1.xml', true, false);
-	FS.createPreloadedFile('/roms', 'tekken3.zip', 'http://localhost/roms/tekken3.zip', true, false);
+	function getParameterByName(name, url) {
+		if (!url) url = window.location.href;
+		name = name.replace(/[\[\]]/g, "\\$&");
+		var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)", "i"),
+		results = regex.exec(url);
+		if (!results) return null;
+		if (!results[2]) return '';
+		return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
 
-};
+	var romname = getParameterByName('rom')
+
+	Module['preRun'] = function() {
+		FS.createFolder('/', 'roms', true, true)
+		FS.createPreloadedFile('/', 'm1.xml', '/m1.xml', true, false);
+		FS.createPreloadedFile('/roms', romname+'.zip', '/roms/'+romname+'.zip', true, false);
+		Module.arguments = [romname];
+	};
 
           var script = document.createElement('script');
           script.src = "m1.js";
