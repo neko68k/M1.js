@@ -112,7 +112,7 @@ SRCS=$(OBJS:.o=.c)
 
 # shouldn't have to export _main but for some reason you do
 # seems to be a known issue ~shrug~
-CWRAP = -s EXPORTED_FUNCTIONS='["_main", "_nextTrack","_prevTrack"]'
+CWRAP = -s EXPORTED_FUNCTIONS='["_main", "_nextTrack","_prevTrack","_setLang"]'
 
 %.o: %.c
 	@echo Compiling $<

@@ -137,25 +137,25 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 		case M1_MSG_GAMENAME:
 			curgame = m1snd_get_info_int(M1_IINF_CURGAME, 0);
 			EM_ASM_({document.getElementById("romtitle").innerHTML = 'Game: '+Pointer_stringify($0);}, txt);
-			printf("Game selected: %s (%s, %s)\n", txt, m1snd_get_info_str(M1_SINF_MAKER, curgame), m1snd_get_info_str(M1_SINF_YEAR, curgame));
+			//printf("Game selected: %s (%s, %s)\n", txt, m1snd_get_info_str(M1_SINF_MAKER, curgame), m1snd_get_info_str(M1_SINF_YEAR, curgame));
 			break;
 
 		// called to show the driver's name
 		case M1_MSG_DRIVERNAME:
 			EM_ASM_({document.getElementById("romdriver").innerHTML = 'Driver: '+Pointer_stringify($0);}, txt);				
-			printf("Driver: %s\n", txt);
+			//printf("Driver: %s\n", txt);
 			break;
 
 		// called to show the hardware description
 		case M1_MSG_HARDWAREDESC:
 			EM_ASM_({document.getElementById("romhardware").innerHTML = 'Hardware: '+Pointer_stringify($0);}, txt);
-			printf("Hardware: %s\n", txt);
+			//printf("Hardware: %s\n", txt);
 			break;
 
 		// called when ROM loading fails for a game
 		case M1_MSG_ROMLOADERR:
 			EM_ASM_({document.getElementById("romtitle").innerHTML = 'Game: '+Pointer_stringify($0);}, txt);
-			printf("ROM load error, bailing\n");
+			//printf("ROM load error, bailing\n");
 			exit(-1);
 			break;
 
@@ -164,7 +164,8 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 			curgame = m1snd_get_info_int(M1_IINF_CURGAME, 0);
 			if (m1snd_get_info_str(M1_SINF_TRKNAME, (iparm<<16) | curgame) == (char *)NULL)
 			{
-				printf("Starting song #%d\n", iparm);
+				EM_ASM_({document.getElementById("trktitle").innerHTML = 'Track: '+ $0;}, iparm);
+				//printf("Starting song #%d\n", iparm);
 			}
 			else
 			{
@@ -181,7 +182,8 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 				strcpy(transname, rawname);
 				#endif
 
-				printf("Starting song #%d: %s\n", iparm, transname);
+				//printf("Starting song #%d: %s\n", iparm, transname);
+				EM_ASM_({document.getElementById("trktitle").innerHTML = 'Track: '+ $0 +' - ' + Pointer_stringify($1);}, iparm, transname);
 
 				if (m1snd_get_info_int(M1_IINF_NUMEXTRAS, (iparm<<16) | curgame) > 0)
 				{
@@ -191,9 +193,9 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 						rawname = m1snd_get_info_str_ex(M1_SINF_EX_EXTRA, curgame, iparm, i);
 						memset(transname, 0, 512);
 						char_conv(rawname, transname, 512);
-						printf("%s\n", transname);
-						#else
-						printf("%s\n", m1snd_get_info_str_ex(M1_SINF_EX_EXTRA, curgame, iparm, i));
+						//printf("%s\n", transname);
+						//#else
+						//printf("%s\n", m1snd_get_info_str_ex(M1_SINF_EX_EXTRA, curgame, iparm, i));
 						#endif
 					}
 					printf("\n");
@@ -218,9 +220,9 @@ static int m1ui_message(void *this, int message, char *txt, int iparm)
 
 		// called when the hardware is finished booting and is ready to play
 		case M1_MSG_BOOTFINISHED:
-			printf("ready!\n\n");
-			printf("Press ESC to exit, + for next song, - for previous, 0 to restart current,\n");
-			printf("                   * for next game, / for previous, space to pause/unpause\n\n");
+			//printf("ready!\n\n");
+			//printf("Press ESC to exit, + for next song, - for previous, 0 to restart current,\n");
+			//printf("                   * for next game, / for previous, space to pause/unpause\n\n");
 
 			#if 0
 			if (1)
@@ -378,6 +380,10 @@ void prevTrack(){
 	{
 		m1snd_run(M1_CMD_SONGJMP, current-1);
 	}
+}
+
+void setLang(int lang){
+	m1snd_setoption(M1_OPT_LANGUAGE, lang);
 }
 
 

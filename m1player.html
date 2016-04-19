@@ -1207,6 +1207,7 @@
 <p id="romtitle"></p>
 <p id="romdriver"></p>
 <p id="romhardware"></p>
+<p id="trktitle"></p>
 <p id="time"></p>
 
 
@@ -1325,14 +1326,23 @@
 		return decodeURIComponent(results[2].replace(/\+/g, " "));
 	}
 
-	var romname = getParameterByName('rom')
+	
 
 	Module['preRun'] = function() {
+		var romname = getParameterByName('rom');
+		var lang = getParameterByName('lang');
+
+		if(lang === 'en'){
+			Module._setLang(0);
+		} else if (lang === 'jp') {
+			Module._setLang(1);
+		}
+
 		FS.createFolder('/', 'roms', true, true)
 		FS.createFolder('/', 'lists', true, true)
-		FS.createFolder('/lists', 'en', true, true)
+		FS.createFolder('/lists', lang, true, true)
 		try{
-		FS.createPreloadedFile('/lists/en', romname+'.lst', '/lists/en/'+romname+'.lst', true, false);
+		FS.createPreloadedFile('/lists/'+lang+'', romname+'.lst', '/lists/'+lang+'/'+romname+'.lst', true, false);
 		FS.createPreloadedFile('/', 'm1.xml', '/m1.xml', true, false);
 		FS.createPreloadedFile('/roms', romname+'.zip', '/roms/'+romname+'.zip', true, false);
 		}
